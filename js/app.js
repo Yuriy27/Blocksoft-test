@@ -1,10 +1,26 @@
 var app = function() {
     let content = $('#template').html().trim();
-    console.log(content);
     let parameters = getParameters(content);
-    console.log(parameters);
     let obj = buildObject(parameters);
     console.log(obj);
+    let domElement = $('#visualized-div')[0];
+    buildObjectDOM(obj, domElement);
+}
+
+function buildObjectDOM(obj, domElem) {
+    let props = Object.keys(obj);
+    let ul = document.createElement('ul');
+    props.forEach(prop => {
+        let li = document.createElement('li');
+        li.innerHTML = `${prop}: `;
+        ul.appendChild(li);
+        if (typeof obj[prop] === 'object') {
+            buildObjectDOM(obj[prop], li);
+        } else {
+            li.innerHTML += obj[prop];
+        }
+    });
+    domElem.appendChild(ul);
 }
 
 function getParameters(content) {
@@ -26,9 +42,7 @@ function buildObject(parameters) {
 }
 
 function addParam(obj, param) {
-    console.log(param);
     let keyValuePair = param.split('=');
-    console.log(keyValuePair);
     if (keyValuePair.length !== 2) {
         console.error(`Invalid parameter: ${keyValuePair}`);
         return;
@@ -53,7 +67,7 @@ function insertIntoObject(obj, key, value) {
 }
 
 function validateDataType(value) {
-    if (value[0] === '\"' && value[value.length - 1]) {
+    if (value[0] === '\"' && value[value.length - 1] === '\"') {
         return value.substring(1, value.length - 1);
     }
     return isNaN(value) ? value : +value;
